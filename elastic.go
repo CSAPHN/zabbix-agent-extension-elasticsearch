@@ -357,11 +357,6 @@ func getIndicesSettings(
 	}
 
 	err = json.NewDecoder(indicesSettingsResponse.Body).Decode(&elasticIndicesSettings.Indices)
-
-	// bodyBytes, err := ioutil.ReadAll(indicesSettingsResponse.Body)
-	// bodyString := string(bodyBytes)
-	// fmt.Println(bodyString)
-
 	if err != nil {
 		return nil, hierr.Errorf(
 			err.Error(),
