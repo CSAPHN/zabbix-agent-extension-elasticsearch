@@ -758,7 +758,7 @@ func createIndicesSettings(
 
 	for indexName, indexSettings := range indicesSettings.Indices {
 		val := "0"
-		if indexSettings.Index.Blocks.ReadOnlyAllowDelete {
+		if indexSettings.Settings.Index.Blocks.ReadOnlyAllowDelete {
 			val = "1"
 		}
 		metrics = append(

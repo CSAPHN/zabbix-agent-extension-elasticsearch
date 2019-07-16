@@ -138,19 +138,23 @@ type ElasticIndicesStatsIndex struct {
 }
 
 type ElasticIndexSettingIndexBlocks struct {
-    ReadOnlyAllowDelete bool `json:"read_only_allow_true"`
+	ReadOnlyAllowDelete bool `json:"read_only_allow_delete,string"`
 }
 
 type ElasticIndexSettingIndex struct {
-	Blocks  ElasticIndexSettingIndexBlocks `json:"blocks"`
+	Blocks ElasticIndexSettingIndexBlocks `json:"blocks"`
 }
 
 type ElasticIndicesSettingsIndex struct {
 	Index ElasticIndexSettingIndex `json:"index"`
 }
 
+type ElasticIndicesSettingsSettings struct {
+	Settings ElasticIndicesSettingsIndex `json:"settings"`
+}
+
 type ElasticIndicesSettings struct {
-	Indices map[string]ElasticIndicesSettingsIndex
+	Indices map[string]ElasticIndicesSettingsSettings
 }
 
 func getClusterHealth(
@@ -317,7 +321,6 @@ func getIndicesSettings(
 	client *http.Client,
 ) (*ElasticIndicesSettings, error) {
 
-	
 	var elasticIndicesSettings ElasticIndicesSettings
 
 	indicesSettingsURL := fmt.Sprintf("%s/_all/_settings/index.blocks.read_only_allow_delete", elasticDSN)
@@ -354,6 +357,11 @@ func getIndicesSettings(
 	}
 
 	err = json.NewDecoder(indicesSettingsResponse.Body).Decode(&elasticIndicesSettings.Indices)
+
+	// bodyBytes, err := ioutil.ReadAll(indicesSettingsResponse.Body)
+	// bodyString := string(bodyBytes)
+	// fmt.Println(bodyString)
+
 	if err != nil {
 		return nil, hierr.Errorf(
 			err.Error(),
