@@ -4,3 +4,9 @@
 /pkg
 /zabbix-agent-extension-elasticsearch
 vendor/*
+
+/.idea/
+/.vscode/
+/nbproject/
+
+/.gopath/

@@ -129,6 +129,16 @@ Misc options:
 			os.Exit(1)
 		}
 
+		indicesSettings, err := getIndicesSettings(
+			elasticDSN,
+			elasticsearchAuthToken,
+			httpClient,
+		)
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+
 		if args["--discovery"].(bool) {
 			err = discoveryIndices(indicesStats)
 			if err != nil {
@@ -141,6 +151,13 @@ Misc options:
 		metrics = createIndicesStats(
 			hostname,
 			indicesStats,
+			metrics,
+			prefix,
+		)
+
+		metrics = createIndicesSettings(
+			hostname,
+			indicesSettings,
 			metrics,
 			prefix,
 		)
