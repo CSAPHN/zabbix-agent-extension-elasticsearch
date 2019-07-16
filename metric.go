@@ -757,7 +757,10 @@ func createIndicesSettings(
 ) []*zsend.Metric {
 
 	for indexName, indexSettings := range indicesSettings.Indices {
-
+		val := "0"
+		if indexSettings.Index.Blocks.ReadOnlyAllowDelete {
+			val = "1"
+		}
 		metrics = append(
 			metrics,
 			zsend.NewMetric(
@@ -769,7 +772,7 @@ func createIndicesSettings(
 						indexName,
 					),
 				),
-				strconv.FormatBool(indexSettings.Index.Blocks.ReadOnlyAllowDelete),
+				val,
 			),
 		)
 
