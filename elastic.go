@@ -137,6 +137,22 @@ type ElasticIndicesStatsIndex struct {
 	} `json:"store"`
 }
 
+type ElasticIndexSettingIndexBlocks struct {
+    ReadOnlyAllowDelete bool `json:"read_only_allow_true"`
+}
+
+type ElasticIndexSettingIndex struct {
+	Blocks  ElasticIndexSettingIndexBlocks `json:"blocks"`
+}
+
+type ElasticIndicesSettingsIndex struct {
+	Index ElasticIndexSettingIndex `json:"index"`
+}
+
+type ElasticIndicesSettings struct {
+	Indices map[string]ElasticIndicesSettingsIndex
+}
+
 func getClusterHealth(
 	elasticDSN string,
 	elasticsearchAuthToken string,
@@ -293,4 +309,58 @@ func getIndicesStats(
 	}
 
 	return &elasticIndicesStats, nil
+}
+
+func getIndicesSettings(
+	elasticDSN string,
+	elasticsearchAuthToken string,
+	client *http.Client,
+) (*ElasticIndicesSettings, error) {
+
+	
+	var elasticIndicesSettings ElasticIndicesSettings
+
+	indicesSettingsURL := fmt.Sprintf("%s/_all/_settings/index.blocks.read_only_allow_delete", elasticDSN)
+	request, err := http.NewRequest("GET", indicesSettingsURL, nil)
+	if err != nil {
+		return nil, hierr.Errorf(
+			err,
+			"can`t create new HTTP request to %s",
+			elasticDSN,
+		)
+	}
+
+	if elasticsearchAuthToken != noneValue {
+		request.Header.Add("Authorization", "Basic "+elasticsearchAuthToken)
+	}
+
+	indicesSettingsResponse, err := client.Do(request)
+	if err != nil {
+		return nil, hierr.Errorf(
+			err.Error(),
+			"can`t get indices settings from Elasticsearch %s",
+			elasticDSN,
+		)
+	}
+
+	defer indicesSettingsResponse.Body.Close()
+
+	if indicesSettingsResponse.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf(
+			"can`t get indices settings, Elasticsearch node returned %d HTTP code, expected %d HTTP code",
+			indicesSettingsResponse.StatusCode,
+			http.StatusOK,
+		)
+	}
+
+	err = json.NewDecoder(indicesSettingsResponse.Body).Decode(&elasticIndicesSettings.Indices)
+	if err != nil {
+		return nil, hierr.Errorf(
+			err.Error(),
+			"can`t decode indices settings response from Elasticsearch %s",
+			elasticDSN,
+		)
+	}
+
+	return &elasticIndicesSettings, nil
 }

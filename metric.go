@@ -748,3 +748,31 @@ func createIndicesStats(
 
 	return metrics
 }
+
+func createIndicesSettings(
+	hostname string,
+	indicesSettings *ElasticIndicesSettings,
+	metrics []*zsend.Metric,
+	prefix string,
+) []*zsend.Metric {
+
+	for indexName, indexSettings := range indicesSettings.Indices {
+
+		metrics = append(
+			metrics,
+			zsend.NewMetric(
+				hostname,
+				makePrefix(
+					prefix,
+					fmt.Sprintf(
+						"indices_settings.index.blocks.read_only_allow_delete.[%s]",
+						indexName,
+					),
+				),
+				strconv.FormatBool(indexSettings.Index.Blocks.ReadOnlyAllowDelete),
+			),
+		)
+
+	}
+	return metrics
+}
